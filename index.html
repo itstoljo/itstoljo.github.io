@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BPM Delay and Reverb Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #b24646;
+            background: linear-gradient(-45deg, #6C698D, #938ba167, #324A5F, #1B2A41);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 30%;
+            }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #a1a1a1;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.493);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        ::placeholder {
+  color: rgb(255, 208, 208);
+  opacity: 1; /* Firefox */
+}
+        
+
+        h1 {
+            font-size: 24px;
+            color: #000000;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 1.2rem;
+            color: #000000;
+            display: block;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        input[type="number"] {
+            width: 50%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            text-align: center;
+            border: none;
+            color: rgb(255, 255, 255);
+            background-color: #af3e3f;
+        }
+
+        .radio-menu {
+   
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            align-content: center;
+            gap: 4px;
+            
+            
+        }
+
+        .radio-menu input {
+            display: none;
+        }
+
+        .radio-menu label {
+            padding: 10px 20px;
+            text-align: center;
+            cursor: pointer;
+            background-color: #324a5f9c;
+            color: white;
+            font-weight: bold;
+           
+            box-shadow: 0 5px 0 #a93034;
+        }
+
+        .radio-menu input:checked + label {
+            background-color:#ac3639;
+            color: #fff;
+            box-shadow: 0 5px 0 #324a5f9c;
+            transition: all 0.3s;
+        
+        }
+        .radio-menu label:hover{
+            background-color:#273d4f ;
+            box-shadow: 0 0 0;
+            transition:  0.3s;
+        }
+
+        .output {
+            margin-top: 5px;
+            border-radius: 15px;
+            padding: 10px;
+            background-color: #324a5f9c;
+            color: #f9f9f9;
+            width: 290px;
+
+        }
+        .rc{
+            border-radius: 50px 0 0 50px;
+       
+        }
+        .rc1{
+            border-radius: 0 50px 50px 0 ;
+        }
+   
+        .output{
+  background:#324a5f9c;
+  animation: pulse-animation 2s infinite;
+}
+
+@keyframes pulse-animation {
+  0% {
+    box-shadow: 0 0 0 0px rgba(103, 103, 103, 0.452);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+  }
+}
+
+
+
+            
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BPM Delay and Reverb Calculator</h1>
+        <label for="bpm">Enter BPM (Beats Per Minute):</label>
+        <input type="number" id="bpm" placeholder="120" oninput="validateAndCalculate()" max="999">
+        
+        <div class="radio-menu">
+            <input type="radio" id="delay-times" name="tool" value="delay-times" checked onchange="updateTool()">
+            <label class="rc" for="delay-times">Delay</label>
+            <input type="radio" id="reverb-settings" name="tool" value="reverb-settings" onchange="updateTool()">
+            <label for="reverb-settings">Reverb</label>
+            <input type="radio" id="pre-delay" name="tool" value="pre-delay" onchange="updateTool()">
+            <label class="rc1" for="pre-delay">Pre-dly</label>
+        </div>
+
+        <div id="output" class="output"></div>
+    </div>
+
+    <script>
+        let currentTool = "delay-times";
+
+        function validateAndCalculate() {
+            const bpmInput = document.getElementById('bpm');
+            let value = bpmInput.value;
+
+            // Remove any non-numeric characters
+            value = value.replace(/[^0-9]/g, '');
+            bpmInput.value = value;
+
+            // Limit input to a maximum of 3 digits
+            if (value.length > 3) {
+                bpmInput.value = value.slice(0, 3);
+            }
+
+            calculateValues();
+        }
+
+        function calculateValues() {
+            const bpmInput = document.getElementById('bpm').value;
+            const output = document.getElementById('output');
+
+            const bpm = parseFloat(bpmInput);
+
+            if (isNaN(bpm) || bpm <= 0 || bpm > 999) {
+                output.textContent = 'Please enter a valid BPM value (1-999).';
+                return;
+            }
+
+            const delayInMs = (60000 / bpm).toFixed(2);
+            const reverbTime = (60 / bpm).toFixed(2); // Approximation for reverb decay time in seconds
+            const preDelay = (delayInMs / 10).toFixed(2); // Example pre-delay as 1/10th of quarter note delay
+
+            const delayNotes = [];
+            const reverbNotes = [];
+            const preDelayNotes = [];
+
+            for (let i = 0; i <= 6; i++) {
+                const divisor = Math.pow(2, i);
+                delayNotes.push(`1/${divisor} Note Delay: ${(delayInMs / divisor).toFixed(2)} ms`);
+                reverbNotes.push(`1/${divisor}x Reverb Decay Time: ${(reverbTime / divisor).toFixed(2)} seconds`);
+                preDelayNotes.push(`1/${divisor}x Pre-Delay: ${(preDelay / divisor).toFixed(2)} ms`);
+            }
+
+            const sections = {
+                "delay-times": `<strong>Delay Times:</strong><br>${delayNotes.join('<br>')}`,
+                "reverb-settings": `<strong>Reverb Settings:</strong><br>${reverbNotes.join('<br>')}`,
+                "pre-delay": `<strong>Pre-Delay:</strong><br>${preDelayNotes.join('<br>')}`,
+            };
+
+            output.innerHTML = sections[currentTool];
+        }
+
+        function updateTool() {
+            const selectedTool = document.querySelector('input[name="tool"]:checked');
+            currentTool = selectedTool.value;
+            calculateValues();
+        }
+    </script>
+</body>
+</html>
