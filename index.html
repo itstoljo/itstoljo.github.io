@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -199,9 +200,9 @@
                 return;
             }
 
-            const delayInMs = (60000 / bpm).toFixed(2);
-            const reverbTime = (60 / bpm).toFixed(2); // Approximation for reverb decay time in seconds
-            const preDelay = (delayInMs / 10).toFixed(2); // Example pre-delay as 1/10th of quarter note delay
+            const quarterNoteInMs = (60000 / bpm);
+            const wholeNoteInMs = quarterNoteInMs * 4;
+            const preDelay = (quarterNoteInMs / 10).toFixed(2); // Example pre-delay as 1/10th of quarter note delay
 
             const delayNotes = [];
             const reverbNotes = [];
@@ -209,8 +210,8 @@
 
             for (let i = 0; i <= 6; i++) {
                 const divisor = Math.pow(2, i);
-                delayNotes.push(`1/${divisor} Note Delay: ${(delayInMs / divisor).toFixed(2)} ms`);
-                reverbNotes.push(`1/${divisor}x Reverb Decay Time: ${(reverbTime / divisor).toFixed(2)} seconds`);
+                delayNotes.push(`1/${divisor} Note Delay: ${(wholeNoteInMs / divisor).toFixed(2)} ms`);
+                reverbNotes.push(`1/${divisor}x Reverb Decay Time: ${(wholeNoteInMs / divisor).toFixed(2)} ms`);
                 preDelayNotes.push(`1/${divisor}x Pre-Delay: ${(preDelay / divisor).toFixed(2)} ms`);
             }
 
@@ -231,3 +232,4 @@
     </script>
 </body>
 </html>
+
