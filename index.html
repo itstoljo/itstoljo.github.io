@@ -1,235 +1,289 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPM Delay and Reverb Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Studio Sync Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #000000;
+            --panel: #121212;
+            --accent: #00ffcc;
+            --text: #ffffff;
+            --text-dim: #777;
+            --border: #222;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #b24646;
-            background: linear-gradient(-45deg, #6C698D, #938ba167, #324A5F, #1B2A41);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
+            margin: 0; padding: 10px;
+            background-color: var(--bg);
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            display: flex; justify-content: center;
         }
 
-        @keyframes gradient {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 30%;
-            }
+        .app-container {
+            width: 100%; max-width: 420px;
+            background: var(--panel);
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            padding-bottom: 20px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
         }
 
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: #a1a1a1;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.493);
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
+        .top-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; border-bottom: 1px solid var(--border);
         }
-        ::placeholder {
-  color: rgb(255, 208, 208);
-  opacity: 1; /* Firefox */
-}
+        .logo { font-size: 0.65rem; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; }
         
+        .controls-top { display: flex; align-items: center; gap: 12px; }
 
-        h1 {
-            font-size: 24px;
-            color: #000000;
-            margin-bottom: 20px;
+        .pro-toggle-container { display: flex; align-items: center; gap: 8px; font-size: 0.65rem; font-weight: 600; color: var(--text-dim); }
+        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider-switch {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333; transition: .3s; border-radius: 20px;
         }
-
-        label {
-            font-size: 1.2rem;
-            color: #000000;
-            display: block;
-            margin-bottom: 10px;
-            margin-top: 10px;
-            text-align: center;
+        .slider-switch:before {
+            position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px;
+            background-color: white; transition: .3s; border-radius: 50%;
         }
+        input:checked + .slider-switch { background-color: var(--accent); }
+        input:checked + .slider-switch:before { transform: translateX(16px); }
 
-        input[type="number"] {
-            width: 50%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border-radius: 25px;
-            font-size: 1.2rem;
-            text-align: center;
-            border: none;
-            color: rgb(255, 255, 255);
-            background-color: #af3e3f;
+        .btn-lock {
+            background: #222; border: 1px solid #333; color: var(--text-dim);
+            padding: 5px 10px; border-radius: 6px; font-size: 0.6rem; cursor: pointer;
         }
+        .btn-lock.active { color: var(--accent); border-color: var(--accent); }
 
-        .radio-menu {
-   
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            align-content: center;
-            gap: 4px;
-            
-            
+        .input-section { padding: 20px; text-align: center; }
+        .bpm-display {
+            font-size: 4.5rem; width: 100%; background: transparent;
+            border: none; color: var(--accent); text-align: center;
+            font-weight: 600; outline: none;
         }
+        .bpm-display:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        .radio-menu input {
-            display: none;
+        .tap-btn {
+            width: 100%; height: 50px; background: #1a1a1a; border: 1px solid #333;
+            color: white; border-radius: 12px; font-weight: 600; cursor: pointer; margin-bottom: 15px;
         }
+        .tap-btn:active { background: var(--accent); color: black; }
 
-        .radio-menu label {
-            padding: 10px 20px;
-            text-align: center;
-            cursor: pointer;
-            background-color: #324a5f9c;
-            color: white;
-            font-weight: bold;
-           
-            box-shadow: 0 5px 0 #a93034;
-        }
+        .pocket-box { padding: 12px; background: #1a1a1a; border-radius: 12px; margin-bottom: 10px; }
+        .row-meta { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-dim); margin-bottom: 5px; }
+        input[type=range] { width: 100%; accent-color: var(--accent); }
 
-        .radio-menu input:checked + label {
-            background-color:#ac3639;
-            color: #fff;
-            box-shadow: 0 5px 0 #324a5f9c;
-            transition: all 0.3s;
+        .results-area { padding: 0 15px; }
+        .group-label { font-size: 0.6rem; color: var(--accent); text-transform: uppercase; margin: 20px 0 8px 5px; letter-spacing: 1px; }
+        .card { background: #1a1a1a; border-radius: 12px; border: 1px solid var(--border); padding: 0 12px; margin-bottom: 10px; }
         
+        .pro-section { display: none; }
+        
+        .row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid #222;
         }
-        .radio-menu label:hover{
-            background-color:#273d4f ;
-            box-shadow: 0 0 0;
-            transition:  0.3s;
+        .row:last-child { border-bottom: none; }
+        .row-label { font-size: 0.8rem; color: #bbb; }
+        .row-value { font-size: 0.95rem; font-weight: 600; font-family: monospace; }
+        .row-value span { color: var(--text-dim); font-size: 0.65rem; margin-left: 3px; }
+
+        #toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--accent); color: #000; padding: 8px 16px;
+            border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+            opacity: 0; transition: 0.3s; pointer-events: none; z-index: 100;
         }
-
-        .output {
-            margin-top: 5px;
-            border-radius: 15px;
-            padding: 10px;
-            background-color: #324a5f9c;
-            color: #f9f9f9;
-            width: 290px;
-
-        }
-        .rc{
-            border-radius: 50px 0 0 50px;
-       
-        }
-        .rc1{
-            border-radius: 0 50px 50px 0 ;
-        }
-   
-        .output{
-  background:#324a5f9c;
-  animation: pulse-animation 2s infinite;
-}
-
-@keyframes pulse-animation {
-  0% {
-    box-shadow: 0 0 0 0px rgba(103, 103, 103, 0.452);
-  }
-  100% {
-    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
-  }
-}
-
-
-
-            
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>BPM Delay and Reverb Calculator</h1>
-        <label for="bpm">Enter BPM (Beats Per Minute):</label>
-        <input type="number" id="bpm" placeholder="120" oninput="validateAndCalculate()" max="999">
-        
-        <div class="radio-menu">
-            <input type="radio" id="delay-times" name="tool" value="delay-times" checked onchange="updateTool()">
-            <label class="rc" for="delay-times">Delay</label>
-            <input type="radio" id="reverb-settings" name="tool" value="reverb-settings" onchange="updateTool()">
-            <label for="reverb-settings">Reverb</label>
-            <input type="radio" id="pre-delay" name="tool" value="pre-delay" onchange="updateTool()">
-            <label class="rc1" for="pre-delay">Pre-dly</label>
-        </div>
 
-        <div id="output" class="output"></div>
+<div id="toast">Copied</div>
+
+<div class="app-container">
+    <div class="top-bar">
+        <div class="logo">Studio Sync Master</div>
+        <div class="controls-top">
+            <div class="pro-toggle-container">
+                PRO
+                <label class="switch">
+                    <input type="checkbox" id="proToggle" onchange="run()">
+                    <span class="slider-switch"></span>
+                </label>
+            </div>
+            <button class="btn-lock" id="lockBtn" onclick="toggleLock()">LOCK</button>
+        </div>
     </div>
 
-    <script>
-        let currentTool = "delay-times";
+    <div class="input-section">
+        <input type="number" id="bpm" class="bpm-display" placeholder="120" inputmode="numeric" oninput="run()">
+        <button class="tap-btn" id="tapBtn">TAP BPM</button>
 
-        function validateAndCalculate() {
-            const bpmInput = document.getElementById('bpm');
-            let value = bpmInput.value;
+        <div class="pocket-box">
+            <div class="row-meta"><span>Swing Offset</span><span id="swingVal" style="color:var(--accent)">0ms</span></div>
+            <input type="range" id="swing" min="-25" max="25" value="0" oninput="run()">
+        </div>
 
-            // Remove any non-numeric characters
-            value = value.replace(/[^0-9]/g, '');
-            bpmInput.value = value;
+        <div class="pro-section" id="dist-toggle-area">
+             <div class="pro-toggle-container" style="justify-content: center; margin-bottom: 10px;">
+                DISTANCE CONVERTER
+                <label class="switch">
+                    <input type="checkbox" id="distToggle" onchange="run()">
+                    <span class="slider-switch"></span>
+                </label>
+            </div>
+        </div>
+    </div>
 
-            // Limit input to a maximum of 3 digits
-            if (value.length > 3) {
-                bpmInput.value = value.slice(0, 3);
-            }
+    <div id="main-results" class="results-area" style="display:none;">
+        
+        <div class="group-label">Standard Timing</div>
+        <div class="card" id="delay-basic"></div>
 
-            calculateValues();
+        <div class="pro-section" id="section-complex">
+            <div class="group-label">Triplets & Dotted</div>
+            <div class="card" id="delay-complex"></div>
+        </div>
+
+        <div class="pro-section" id="section-reverb">
+            <div class="group-label">Reverb Designer</div>
+            <div class="card" id="reverb-calc"></div>
+        </div>
+
+        <div class="pro-section" id="section-filter">
+            <div class="group-label">Abbey Road Filter</div>
+            <div class="card" style="display: grid; grid-template-columns: 1fr 1fr; padding: 12px; text-align: center;">
+                <div style="border-right: 1px solid #333;">
+                    <div style="font-size: 0.6rem; color: var(--text-dim);">HPF</div>
+                    <div id="hpf" style="color: var(--accent); font-weight: 600;">--</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.6rem; color: var(--text-dim);">LPF</div>
+                    <div id="lpf" style="color: var(--accent); font-weight: 600;">--</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-distance" style="display: none;">
+            <div class="group-label">Spatial Distance</div>
+            <div class="pocket-box">
+                <div class="row-meta"><span>Distance (Meters)</span><span id="distVal" style="color:var(--accent)">1.0m</span></div>
+                <input type="range" id="dist" min="0.1" max="40" step="0.1" value="1" oninput="run()">
+                <div class="row" style="border:none; padding-bottom:0; margin-top:10px;">
+                    <span class="row-label">Air Delay</span>
+                    <span class="row-value" id="distRes">--<span>ms</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let taps = [];
+    let isLocked = false;
+    const bpmInput = document.getElementById('bpm');
+    const swingInput = document.getElementById('swing');
+    const distInput = document.getElementById('dist');
+    const lockBtn = document.getElementById('lockBtn');
+    const proToggle = document.getElementById('proToggle');
+    const distToggle = document.getElementById('distToggle');
+
+    function toggleLock() {
+        isLocked = !isLocked;
+        bpmInput.disabled = isLocked;
+        lockBtn.classList.toggle('active', isLocked);
+        lockBtn.innerText = isLocked ? 'LOCKED' : 'LOCK';
+    }
+
+    document.getElementById('tapBtn').addEventListener('touchstart', (e) => {
+        if (isLocked) return;
+        e.preventDefault();
+        const now = Date.now();
+        if (taps.length > 0 && now - taps[taps.length-1] > 2000) taps = [];
+        taps.push(now);
+        if (taps.length > 1) {
+            const avg = (taps[taps.length-1] - taps[0]) / (taps.length - 1);
+            bpmInput.value = Math.min(Math.max(Math.round(60000 / avg), 20), 400);
+            run();
         }
+    });
 
-        function calculateValues() {
-            const bpmInput = document.getElementById('bpm').value;
-            const output = document.getElementById('output');
+    function run() {
+        const bpm = parseFloat(bpmInput.value);
+        const swing = parseFloat(swingInput.value);
+        const dist = parseFloat(distInput.value);
+        const isPro = proToggle.checked;
+        const isDist = distToggle.checked;
 
-            const bpm = parseFloat(bpmInput);
+        document.querySelectorAll('.pro-section').forEach(el => el.style.display = isPro ? 'block' : 'none');
+        document.getElementById('section-distance').style.display = (isPro && isDist) ? 'block' : 'none';
 
-            if (isNaN(bpm) || bpm <= 0 || bpm > 999) {
-                output.textContent = 'Please enter a valid BPM value (1-999).';
-                return;
+        document.getElementById('swingVal').innerText = (swing > 0 ? '+' : '') + swing + 'ms';
+        document.getElementById('distVal').innerText = dist.toFixed(1) + 'm';
+
+        if (bpm >= 20 && bpm <= 400) {
+            document.getElementById('main-results').style.display = 'block';
+            const beat = 60000 / bpm;
+            
+            const basic = [
+                {n: '1/4 Note', v: beat},
+                {n: '1/8 Note', v: beat * 0.5},
+                {n: '1/16 Note', v: beat * 0.25},
+                {n: '1/32 Note', v: beat * 0.125}
+            ];
+            renderRows('delay-basic', basic, swing);
+
+            if (isPro) {
+                const complex = [
+                    {n: '1/4 Dotted', v: beat * 1.5},
+                    {n: '1/8 Dotted', v: beat * 0.75},
+                    {n: '1/4 Triplet', v: beat * 0.666},
+                    {n: '1/8 Triplet', v: beat * 0.333}
+                ];
+                renderRows('delay-complex', complex, swing);
+
+                const reverb = [
+                    {n: '1 Bar Decay', v: beat * 4},
+                    {n: '1/2 Bar Decay', v: beat * 2},
+                    {n: 'Pre-Delay (1/64)', v: beat * 0.0625},
+                    {n: 'Pre-Delay (1/128)', v: beat * 0.03125}
+                ];
+                renderRows('reverb-calc', reverb, swing);
+
+                document.getElementById('hpf').innerText = Math.round(600 * (bpm/120)) + ' Hz';
+                document.getElementById('lpf').innerText = Math.round(6000 / (bpm/120)) + ' Hz';
+                
+                if(isDist) {
+                    document.getElementById('distRes').innerHTML = ((dist/343)*1000).toFixed(1) + '<span>ms</span>';
+                }
             }
-
-            const quarterNoteInMs = (60000 / bpm);
-            const wholeNoteInMs = quarterNoteInMs * 4;
-            const preDelay = (quarterNoteInMs / 10).toFixed(2); // Example pre-delay as 1/10th of quarter note delay
-
-            const delayNotes = [];
-            const reverbNotes = [];
-            const preDelayNotes = [];
-
-            for (let i = 0; i <= 6; i++) {
-                const divisor = Math.pow(2, i);
-                delayNotes.push(`1/${divisor} Note Delay: ${(wholeNoteInMs / divisor).toFixed(2)} ms`);
-                reverbNotes.push(`1/${divisor}x Reverb Decay Time: ${(wholeNoteInMs / divisor).toFixed(2)} ms`);
-                preDelayNotes.push(`1/${divisor}x Pre-Delay: ${(preDelay / divisor).toFixed(2)} ms`);
-            }
-
-            const sections = {
-                "delay-times": `<strong>Delay Times:</strong><br>${delayNotes.join('<br>')}`,
-                "reverb-settings": `<strong>Reverb Settings:</strong><br>${reverbNotes.join('<br>')}`,
-                "pre-delay": `<strong>Pre-Delay:</strong><br>${preDelayNotes.join('<br>')}`,
-            };
-
-            output.innerHTML = sections[currentTool];
+        } else {
+            document.getElementById('main-results').style.display = 'none';
         }
+    }
 
-        function updateTool() {
-            const selectedTool = document.querySelector('input[name="tool"]:checked');
-            currentTool = selectedTool.value;
-            calculateValues();
-        }
-    </script>
+    function renderRows(id, data, swing) {
+        document.getElementById(id).innerHTML = data.map(d => `
+            <div class="row" onclick="copy(${(d.v + swing).toFixed(1)})">
+                <span class="row-label">${d.n}</span>
+                <span class="row-value">${(d.v + swing).toFixed(1)}<span>ms</span></span>
+            </div>
+        `).join('');
+    }
+
+    function copy(val) {
+        navigator.clipboard.writeText(val);
+        const t = document.getElementById('toast');
+        t.style.opacity = '1';
+        setTimeout(() => t.style.opacity = '0', 800);
+    }
+    run();
+</script>
 </body>
 </html>
-
