@@ -108,6 +108,27 @@
             border-radius: 20px; font-size: 0.75rem; font-weight: 600;
             opacity: 0; transition: 0.3s; pointer-events: none; z-index: 100;
         }
+
+        /* Animation for the Tap Button */
+@keyframes buttonFlash {
+    0% { background-color: var(--accent); color: #000; transform: scale(0.98); }
+    100% { background-color: #1a1a1a; color: #fff; transform: scale(1); }
+}
+
+/* Animation for the BPM Numbers */
+@keyframes numberPulse {
+    0% { transform: scale(1.1); color: #fff; text-shadow: 0 0 20px var(--accent); }
+    100% { transform: scale(1); color: var(--accent); text-shadow: none; }
+}
+
+.tap-active {
+    animation: buttonFlash 0.15s ease-out;
+}
+
+.pulse-active {
+    animation: numberPulse 0.2s ease-out;
+    display: inline-block; /* Required for transform scale to work on inputs */
+}
     </style>
 </head>
 <body>
@@ -210,18 +231,26 @@
     }
 
 // Define the tap logic in a single function
-    function handleTap(e) {
+function handleTap(e) {
         if (isLocked) return;
         
-    if (navigator.vibrate) {
-        navigator.vibrate(10);
-    }
-    // --------------------------------
-        // Prevent default behavior to stop ghost clicks and accidental zooming
+        // --- VISUAL & HAPTIC FEEDBACK ---
+        if (navigator.vibrate) navigator.vibrate(20);
+
+        // Add animation classes
+        tapBtn.classList.add('tap-active');
+        bpmInput.classList.add('pulse-active');
+
+        // Remove classes after animation finishes so they can trigger again
+        setTimeout(() => {
+            tapBtn.classList.remove('tap-active');
+            bpmInput.classList.remove('pulse-active');
+        }, 150);
+        // --------------------------------
+
         if (e.cancelable) e.preventDefault();
         
         const now = Date.now();
-        // Reset if the gap between taps is more than 2 seconds
         if (taps.length > 0 && now - taps[taps.length - 1] > 2000) taps = [];
         
         taps.push(now);
@@ -324,6 +353,7 @@
 </script>
 </body>
 </html>
+
 
 
 
