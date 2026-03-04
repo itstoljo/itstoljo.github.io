@@ -85,10 +85,18 @@
         
         .pro-section { display: none; }
         
-        .row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 0; border-bottom: 1px solid #222;
-        }
+      .row {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    padding: 12px 0; 
+    border-bottom: 1px solid #222;
+    cursor: pointer; /* Add this to show it is a button */
+}
+
+.row:active {
+    background-color: rgba(0, 255, 204, 0.1); /* Brief flash of your accent color when clicked */
+}
         .row:last-child { border-bottom: none; }
         .row-label { font-size: 0.8rem; color: #bbb; }
         .row-value { font-size: 0.95rem; font-weight: 600; font-family: monospace; }
@@ -316,4 +324,5 @@
 </script>
 </body>
 </html>
+
 
