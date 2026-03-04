@@ -201,17 +201,25 @@
         lockBtn.innerText = isLocked ? 'LOCKED' : 'LOCK';
     }
 
-    document.getElementById('tapBtn').addEventListener('touchstart', (e) => {
-        if (isLocked) return;
-        e.preventDefault();
-        const now = Date.now();
-        if (taps.length > 0 && now - taps[taps.length-1] > 2000) taps = [];
-        taps.push(now);
-        if (taps.length > 1) {
-            const avg = (taps[taps.length-1] - taps[0]) / (taps.length - 1);
-            bpmInput.value = Math.min(Math.max(Math.round(60000 / avg), 20), 400);
-            run();
-        }
+   const handleTap = (e) => {
+    if (isLocked) return;
+    e.preventDefault();
+    const now = Date.now();
+    // Reset if gap is > 2 seconds
+    if (taps.length > 0 && now - taps[taps.length-1] > 2000) taps = [];
+    taps.push(now);
+    
+    if (taps.length > 1) {
+        const avg = (taps[taps.length-1] - taps[0]) / (taps.length - 1);
+        bpmInput.value = Math.min(Math.max(Math.round(60000 / avg), 20), 400);
+        run();
+    }
+};
+
+// Support both touch and click
+const tapBtn = document.getElementById('tapBtn');
+tapBtn.addEventListener('touchstart', handleTap, {passive: false});
+tapBtn.addEventListener('mousedown', handleTap);
     });
 
     function run() {
@@ -286,4 +294,5 @@
     run();
 </script>
 </body>
+
 </html>
