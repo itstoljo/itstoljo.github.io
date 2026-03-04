@@ -201,25 +201,37 @@
         lockBtn.innerText = isLocked ? 'LOCKED' : 'LOCK';
     }
 
-   const handleTap = (e) => {
-    if (isLocked) return;
-    e.preventDefault();
-    const now = Date.now();
-    // Reset if gap is > 2 seconds
-    if (taps.length > 0 && now - taps[taps.length-1] > 2000) taps = [];
-    taps.push(now);
-    
-    if (taps.length > 1) {
-        const avg = (taps[taps.length-1] - taps[0]) / (taps.length - 1);
-        bpmInput.value = Math.min(Math.max(Math.round(60000 / avg), 20), 400);
-        run();
+// Define the tap logic in a single function
+    function handleTap(e) {
+        if (isLocked) return;
+        
+        // Prevent default behavior to stop ghost clicks and accidental zooming
+        if (e.cancelable) e.preventDefault();
+        
+        const now = Date.now();
+        // Reset if the gap between taps is more than 2 seconds
+        if (taps.length > 0 && now - taps[taps.length - 1] > 2000) taps = [];
+        
+        taps.push(now);
+        
+        if (taps.length > 1) {
+            const avg = (taps[taps.length - 1] - taps[0]) / (taps.length - 1);
+            bpmInput.value = Math.min(Math.max(Math.round(60000 / avg), 20), 400);
+            run();
+        }
     }
-};
 
-// Support both touch and click
-const tapBtn = document.getElementById('tapBtn');
-tapBtn.addEventListener('touchstart', handleTap, {passive: false});
-tapBtn.addEventListener('mousedown', handleTap);
+    const tapBtn = document.getElementById('tapBtn');
+
+    // Listener for Mobile (Touch)
+    tapBtn.addEventListener('touchstart', handleTap, { passive: false });
+
+    // Listener for Desktop (Mouse)
+    // We check for 'ontouchstart' to avoid firing twice on hybrid devices
+    tapBtn.addEventListener('mousedown', (e) => {
+        if (!('ontouchstart' in window)) {
+            handleTap(e);
+        }
     });
 
     function run() {
@@ -294,5 +306,4 @@ tapBtn.addEventListener('mousedown', handleTap);
     run();
 </script>
 </body>
-
 </html>
