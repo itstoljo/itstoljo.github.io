@@ -205,6 +205,12 @@
     function handleTap(e) {
         if (isLocked) return;
         
+		// --- ADD HAPTIC FEEDBACK HERE ---
+    // 10ms is a short, sharp pulse suitable for a button click
+    if (navigator.vibrate) {
+        navigator.vibrate(10);
+    }
+    // --------------------------------
         // Prevent default behavior to stop ghost clicks and accidental zooming
         if (e.cancelable) e.preventDefault();
         
