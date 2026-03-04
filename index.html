@@ -205,8 +205,6 @@
     function handleTap(e) {
         if (isLocked) return;
         
-		// --- ADD HAPTIC FEEDBACK HERE ---
-    // 10ms is a short, sharp pulse suitable for a button click
     if (navigator.vibrate) {
         navigator.vibrate(10);
     }
@@ -303,7 +301,12 @@
         `).join('');
     }
 
-    function copy(val) {
+  function copy(val) {
+        if (navigator.vibrate) {
+            navigator.vibrate([10, 40, 10]);
+        }
+        // --------------------------------
+
         navigator.clipboard.writeText(val);
         const t = document.getElementById('toast');
         t.style.opacity = '1';
@@ -313,3 +316,4 @@
 </script>
 </body>
 </html>
+
